@@ -1,0 +1,3266 @@
+{
+	"info": {
+		"_postman_id": "64fa2992-c82c-45af-8a21-4f88b782f9b9",
+		"name": "API-Paylocity",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42887546"
+	},
+	"item": [
+		{
+			"name": "Happy flows",
+			"item": [
+				{
+					"name": "Get Employee List",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"pm.test(\"Response body is an non-empty array\", function () {\r",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;\r",
+									"    pm.expect(jsonData.length).to.be.above(0);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Each employee entry follows valid schema\", function () {\r",
+									"\r",
+									"    // this is to cover the case when some fields (existing / new) will become optional\r",
+									"    const expectedSchema = {\r",
+									"        partitionKey: { type: 'string', required: true },\r",
+									"        sortKey: { type: 'string', required: true },\r",
+									"        username: { type: 'string', required: true },\r",
+									"        id: { type: 'string', required: true },\r",
+									"        firstName: { type: 'string', required: true },\r",
+									"        lastName: { type: 'string', required: true },\r",
+									"        dependants: { type: 'number', required: true },\r",
+									"        expiration: { type: 'string', required: true },\r",
+									"        salary: { type: 'number', required: true },\r",
+									"        gross: { type: 'number', required: true },\r",
+									"        benefitsCost: { type: 'number', required: true },\r",
+									"        net: { type: 'number', required: true },\r",
+									"    };\r",
+									"\r",
+									"    jsonData.forEach(item => {\r",
+									"        Object.entries(expectedSchema).forEach(([key, schema]) => {\r",
+									"            if (schema.required) {\r",
+									"                pm.expect(item).to.have.property(key);\r",
+									"                pm.expect(item[key]).to.be.a(schema.type);\r",
+									"            } else if (item.hasOwnProperty(key)) {\r",
+									"                pm.expect(item[key]).to.be.a(schema.type);\r",
+									"            }\r",
+									"        });\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"firstEmpId\", jsonData[0].id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic VGVzdFVzZXI3MzQ6KW93IVJGe2JGQWJ3",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+							"protocol": "https",
+							"host": [
+								"wmxrwq14uc",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"Prod",
+								"api",
+								"employees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Employee entry follows valid schema\", function () {\r",
+									"\r",
+									"    const expectedSchema = {\r",
+									"        partitionKey: { type: 'string', required: true },\r",
+									"        sortKey: { type: 'string', required: true },\r",
+									"        username: { type: 'string', required: true },\r",
+									"        id: { type: 'string', required: true },\r",
+									"        firstName: { type: 'string', required: true },\r",
+									"        lastName: { type: 'string', required: true },\r",
+									"        dependants: { type: 'number', required: true },\r",
+									"        salary: { type: 'number', required: true },\r",
+									"        gross: { type: 'number', required: true },\r",
+									"        benefitsCost: { type: 'number', required: true },\r",
+									"        net: { type: 'number', required: true },\r",
+									"    };\r",
+									"\r",
+									"    Object.entries(expectedSchema).forEach(([key, schema]) => {\r",
+									"        if (schema.required) {\r",
+									"            pm.expect(responseJson[key]).to.be.a(schema.type);\r",
+									"        } else if (responseJson.hasOwnProperty(key)) {\r",
+									"            pm.expect(responseJson[key]).to.be.a(schema.type);\r",
+									"        }\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Firstname, lastname and dependants have correct values\", () => {\r",
+									"    const requestJson = JSON.parse(pm.request.body.raw)\r",
+									"    pm.expect(responseJson.firstName).to.eql(requestJson.firstName);\r",
+									"    pm.expect(responseJson.lastName).to.eql(requestJson.lastName);\r",
+									"    pm.expect(responseJson.dependants).to.eql(requestJson.dependants);\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"empId\", responseJson.id)\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"{{$randomFirstName}}\",\r\n    \"lastName\": \"{{$randomLastName}}\",\r\n    \"dependants\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+							"protocol": "https",
+							"host": [
+								"wmxrwq14uc",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"Prod",
+								"api",
+								"employees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Correct employee is displayed\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.id).to.eql(pm.environment.get('empId'));\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees/{{empId}}",
+							"protocol": "https",
+							"host": [
+								"wmxrwq14uc",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"Prod",
+								"api",
+								"employees",
+								"{{empId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Firstname, lastname, dependants and ID have correct values\", () => {\r",
+									"    const requestJson = JSON.parse(pm.request.body.raw)\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.expect(responseJson.firstName).to.eql(requestJson.firstName);\r",
+									"    pm.expect(responseJson.lastname).to.eql(requestJson.lastname);\r",
+									"    pm.expect(responseJson.dependants).to.eql(requestJson.dependants);\r",
+									"    pm.expect(responseJson.id).to.eql(requestJson.id);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"{{empId}}\",\r\n    \"firstName\": \"{{$randomFirstName}}\",\r\n    \"lastName\": \"{{$randomLastName}}\",\r\n    \"dependants\": 2,\r\n    \"expiration\": \"3000-04-06T15:28:50+00:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+							"protocol": "https",
+							"host": [
+								"wmxrwq14uc",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"Prod",
+								"api",
+								"employees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body is empty\", function () {\r",
+									"    pm.expect(pm.response.text()).to.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees/{{empId}}",
+							"protocol": "https",
+							"host": [
+								"wmxrwq14uc",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"Prod",
+								"api",
+								"employees",
+								"{{empId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get deleted Employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TODO: bug, should return 404. Update once fixed\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body is empty\", function () {\r",
+									"    pm.expect(pm.response.text()).to.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees/{{empId}}",
+							"protocol": "https",
+							"host": [
+								"wmxrwq14uc",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"Prod",
+								"api",
+								"employees",
+								"{{empId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Negative scenarios",
+			"item": [
+				{
+					"name": "Missing authorization",
+					"item": [
+						{
+							"name": "Get Employee List - missing auth",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Basic VGVzdFVzZXI3MzQ6KW93IVJGe2JGQWJ3",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - missing auth",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstName\": \"john\",\r\n    \"lastName\": \"wick\",\r\n    \"dependants\": 3\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Employee - missing auth",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees/{{empId}}",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees",
+										"{{empId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - missing auth",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{empId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Employee - missing auth",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"a82d64b9-e532-4b46-afb1-e0018757ee59\",\r\n    \"firstName\": \"bleee\",\r\n    \"lastName\": \"blaa\",\r\n    \"dependants\": 12,\r\n    \"salary\": 11000,\r\n    \"username\": \"TestUser736\",\r\n    \"gross\": 1000,\r\n    \"benefitsCost\": 10,\r\n    \"net\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees/{{empId}}",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees",
+										"{{empId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "noauth"
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Invalid auth token",
+					"item": [
+						{
+							"name": "Get Employee List - invalid token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Basic VGVzdFVzZXI3MzQ6KW93IVJGe2JGQWJ3",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - invalid token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstName\": \"john\",\r\n    \"lastName\": \"wick\",\r\n    \"dependants\": 3\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Employee - invalid token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees/{{empId}}",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees",
+										"{{empId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - invalid token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{empId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Employee - invalid token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"a82d64b9-e532-4b46-afb1-e0018757ee59\",\r\n    \"firstName\": \"bleee\",\r\n    \"lastName\": \"blaa\",\r\n    \"dependants\": 12,\r\n    \"salary\": 11000,\r\n    \"username\": \"TestUser736\",\r\n    \"gross\": 1000,\r\n    \"benefitsCost\": 10,\r\n    \"net\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees/{{empId}}",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees",
+										"{{empId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "apikey",
+						"apikey": [
+							{
+								"key": "value",
+								"value": "Basic VGVzdFVzZXI3MzQ6KW93IVJGe2JGQWJ1",
+								"type": "string"
+							},
+							{
+								"key": "key",
+								"value": "Authorization",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Add employee",
+					"item": [
+						{
+							"name": "Add employee - missing Content-Type",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 415\", function () {\r",
+											"    pm.response.to.have.status(415);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"john\",\r\n    \"lastname\": \"wick\",\r\n    \"dependants\": 5\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - missing body",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 415\", function () {\r",
+											"    pm.response.to.have.status(415);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - empty body",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The FirstName field is required.\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"The LastName field is required.\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - missing firstname",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The FirstName field is required.\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"lastname\": \"wick\",\r\n    \"dependents\": 4\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - missing lastname",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The LastName field is required.\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"john\",\r\n    \"dependents\": 4\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - firstname not string",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": 12,\r\n    \"lastname\": \"wick\",\r\n    \"dependents\": 4\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - lastname not string",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"john\",\r\n    \"lastname\": true,\r\n    \"dependents\": 4\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - dependants not number",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"john\",\r\n    \"lastname\": \"wick\",\r\n    \"dependants\": \"none\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - dependants decimal number",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"john\",\r\n    \"lastname\": \"wick\",\r\n    \"dependants\": 3.3\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - dependants negative number",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The field Dependants must be between 0 and 32.\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"john\",\r\n    \"lastname\": \"wick\",\r\n    \"dependants\": -1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - dependants over the limit",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The field Dependants must be between 0 and 32.\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"john\",\r\n    \"lastname\": \"wick\",\r\n    \"dependants\": 33\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - include additonal fields",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"const responseJson = pm.response.json();\r",
+											"const requestJson = JSON.parse(pm.request.body.raw)\r",
+											"\r",
+											"pm.test(\"Additional fields should be ignored and have its own values pre-filled\", () => {\r",
+											"    pm.expect(responseJson.partitionKey).not.to.eql(requestJson.partitionKey);\r",
+											"    pm.expect(responseJson.sortKey).not.to.eql(requestJson.sortKey);\r",
+											"    pm.expect(responseJson.username).not.to.eql(requestJson.username);\r",
+											"    pm.expect(responseJson.id).not.to.eql(requestJson.id);\r",
+											"    pm.expect(responseJson.salary).not.to.eql(requestJson.salary);\r",
+											"    pm.expect(responseJson.gross).not.to.eql(requestJson.gross);\r",
+											"    pm.expect(responseJson.benefitsCost).not.to.eql(requestJson.benefitsCost);\r",
+											"    pm.expect(responseJson.net).not.to.eql(requestJson.net);\r",
+											"    pm.expect(responseJson).to.not.have.property('customNewField')\r",
+											"\r",
+											"    // TODO: currently a bug; once fixed, update the assertion\r",
+											"    pm.expect(responseJson.expiration).to.eql(requestJson.expiration);\r",
+											"\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Firstname, lastname and dependants have correct values\", () => {\r",
+											"    pm.expect(responseJson.firstName).to.eql(requestJson.firstName);\r",
+											"    pm.expect(responseJson.lastName).to.eql(requestJson.lastName);\r",
+											"    pm.expect(responseJson.dependants).to.eql(requestJson.dependants);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"partitionKey\": \"TestUser001\",\r\n    \"sortKey\": \"005c8307-4c48-4e94-996f-4287139002a1\",\r\n    \"username\": \"TestUser001\",\r\n    \"id\": \"005c8307-4c48-4e94-996f-4287139002a1\",\r\n    \"firstName\": \"john\",\r\n    \"lastName\": \"wick\",\r\n    \"dependants\": 4,\r\n    \"expiration\": \"2030-04-06T13:47:51+00:00\",\r\n    \"salary\": 9999,\r\n    \"gross\": 100,\r\n    \"benefitsCost\": 38.46154,\r\n    \"net\": 1961.5385,\r\n    \"customNewField\": \"just some random value that should be ignored\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - firstname too long",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The field FirstName must be a string with a maximum length of 50.\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstName\": \"{{$randomLoremParagraph}}\",\r\n    \"lastName\": \"{{$randomLastName}}\",\r\n    \"dependants\": 3\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add employee - lastname too long",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The field LastName must be a string with a maximum length of 50.\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstName\": \"john\",\r\n    \"lastName\": \"{{$randomLoremParagraph}}\",\r\n    \"dependants\": 3\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Update employee",
+					"item": [
+						{
+							"name": "Update Employee - missing Content-Type",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 415\", function () {\r",
+											"    pm.response.to.have.status(415);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{empId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"salary\": 10000,\r\n    \"username\": \"TestUser736\",\r\n    \"gross\": 1000,\r\n    \"benefitsCost\": 10,\r\n    \"net\": 1,\r\n    \"partitionKey\": \"TestUser733\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - missing body",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 415\", function () {\r",
+											"    pm.response.to.have.status(415);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - empty body",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - missing ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - invalid ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"abc-123\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - non-existing ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// TODO: should return 404, update when fixed\r",
+											"pm.test(\"Response status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"005c8307-4c48-4e94-996f-4287139002c3\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 2,\r\n    \"expiration\": \"3000-04-06T15:28:50+00:00\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - missing firstname",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The FirstName field is required.\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 2,\r\n    \"expiration\": \"3000-04-06T15:28:50+00:00\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - missing lastname",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The LastName field is required.\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"dependants\": 2,\r\n    \"expiration\": \"3000-04-06T15:28:50+00:00\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - firstname too long",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The field FirstName must be a string with a maximum length of 50.\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"{{$randomLoremParagraph}}\",\r\n    \"lastName\":\"wick\",\r\n    \"dependants\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - lastname too long",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The field LastName must be a string with a maximum length of 50.\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"john\",\r\n    \"lastName\":\"{{$randomLoremParagraph}}\",\r\n    \"dependants\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - missing firstname and lastname",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The FirstName field is required.\");\r",
+											"    pm.expect(pm.response.text()).to.include(\"The LastName field is required.\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"dependants\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - firstname not string",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": 12,\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - lastname not string",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": 11,\r\n    \"dependants\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - dependants not number",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": \"none\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - dependants decimal number",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 2.1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - dependants negative number",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The field Dependants must be between 0 and 32.\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": -1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - dependants over the limit",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Error message present\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"The field Dependants must be between 0 and 32.\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 33\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "HELPER: Update Employee - set dependants",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Dependants correctly set\", function () {\r",
+											"    const requestJson = JSON.parse(pm.request.body.raw)\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson.dependants).to.eql(requestJson.dependants);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - missing dependants",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// TODO - bug, fix the assert once fixed\r",
+											"pm.test(\"Dependants should stay the same\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson.dependants).to.eql(0);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - set salary",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// TODO - bug, update assert once fixed\r",
+											"pm.test(\"Salary should not be changed\", function () {\r",
+											"    const requestJson = JSON.parse(pm.request.body.raw)\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson.salary).to.eql(requestJson.salary);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 2,\r\n    \"salary\": 10\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - set salary negative",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// TODO - bug, update assert once fixed\r",
+											"pm.test(\"Salary should not be changed\", function () {\r",
+											"    const requestJson = JSON.parse(pm.request.body.raw)\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson.salary).to.eql(requestJson.salary);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 2,\r\n    \"salary\": -7777.12\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Employee - set expiration",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// TODO - bug, update assert once fixed\r",
+											"pm.test(\"Expiration should not be changed\", function () {\r",
+											"    const requestJson = JSON.parse(pm.request.body.raw)\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson.expiration).to.eql(requestJson.expiration);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{firstEmpId}}\",\r\n    \"firstName\": \"slim\",\r\n    \"lastName\": \"shady\",\r\n    \"dependants\": 2,\r\n    \"expiration\": \"2050-04-06T15:31:14+00:00\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get employee",
+					"item": [
+						{
+							"name": "Get Employee - non-existing ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Body is empty\", function () {\r",
+											"    pm.expect(pm.response.text()).to.be.empty;\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees/005c8307-4c48-4e94-996f-4287139002c3",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees",
+										"005c8307-4c48-4e94-996f-4287139002c3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Employee - invalid ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 500\", function () {\r",
+											"    pm.response.to.have.status(500);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees/1",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Delete employee",
+					"item": [
+						{
+							"name": "Delete Employee - non-existing ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// TODO - bug, should be 404, update once fixed\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Body is empty\", function () {\r",
+											"    pm.expect(pm.response.text()).to.be.empty;\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees/005c8307-4c48-4e94-996f-4287139002c3",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees",
+										"005c8307-4c48-4e94-996f-4287139002c3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Employee - invalid ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://wmxrwq14uc.execute-api.us-east-1.amazonaws.com/Prod/api/employees/1",
+									"protocol": "https",
+									"host": [
+										"wmxrwq14uc",
+										"execute-api",
+										"us-east-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"Prod",
+										"api",
+										"employees",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "key",
+				"value": "Authorization",
+				"type": "string"
+			},
+			{
+				"key": "value",
+				"value": "Basic VGVzdFVzZXI3MzQ6KW93IVJGe2JGQWJ3",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

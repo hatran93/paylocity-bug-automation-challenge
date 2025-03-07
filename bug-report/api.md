@@ -1,4 +1,4 @@
-# API:
+# API bugs report
 ### Get Employee list / Get employee
 - sortKey = id - why do we need to have both fields? ID should be enough to avoid duplicity. Same with username and partitionKey.
 - We should not show salary in the GET request as it's sensitive info, better to have a separate endpoint for that

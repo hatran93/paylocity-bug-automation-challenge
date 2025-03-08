@@ -20,7 +20,6 @@
 - If I don't provide dependants field in the request - I would expect it to stay the same, instead it is set to 0. Or make the field mandatory?
 - it's possible to update expiration date - should not be allowed --> it's returned in the response but when doing the GET request, the expiration date is not modified
 - Better would be using PATCH instead of PUT?
-- 
 
 
 ### Delete employee
@@ -40,4 +39,4 @@ I was curious because my text editor kept highlighting the word "dependants" as 
 2. *In American English:*  
     *"Dependants" is not typically used. Instead, Americans use "dependents" for both the noun and adjective forms*
 
-As the majority of clients are US-based, better to have the spelling "dependents"
+As the majority of Paylocity's clients are US-based, better to have the spelling "dependents"

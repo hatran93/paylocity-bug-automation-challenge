@@ -4,8 +4,8 @@
 For API tests I used Postman to create a collection of tests. The collection is exported as a JSON file (**API-Paylocity.postman_collection.json**) in `postman` folder (in the root of the repository)
 Collection contains 2 main folders - `Happy flows` tests and `Negative scenarios`. Total 87 tests, takes around 25s to execute
 
-How to run: Import the collection to Postman and run the whole collection
-Note: I passed the authorization key to the top parent folder --> all the subsequent requests just inherits from them. In real life I would have the token saved as a secret variable in Github / Gitlab and passed the value as a variable when executing with newman.
+**How to run:** Import the collection to Postman and run the whole collection  
+**Note:** I passed the authorization key to the top parent folder --> all the subsequent requests just inherits from them. In real life I would have the token saved as a secret variable in Github / Gitlab and passed the value as a variable when executing with newman.
 
 ![Postman tests structure](<assets/images/postman-structure.png>)
 
@@ -26,4 +26,4 @@ I created one custom command for `login` and wrapped it in cy.session() --> to s
 For credentials (username, password and auth token) I used `.env` package --> to run you have to create a `.env` file in the root of the project with correct values
 I did not need to use fixtures to read / mock some data but left the folder there as in real projects it's commonly used.
 
-How to run: `npx cypress open` to open cypress in UI mode and run the specs, or `npx cypress run` to run in headless mode
+**How to run:** `npx cypress open` to open cypress in UI mode and run the specs, or `npx cypress run` to run in headless mode
